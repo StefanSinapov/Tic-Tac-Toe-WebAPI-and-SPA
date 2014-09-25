@@ -1,5 +1,6 @@
 ﻿namespace TicTacToe.Data
 {
+    using Contracts;
     using TicTacToe.Models;
 
     public interface ITicTacToeData

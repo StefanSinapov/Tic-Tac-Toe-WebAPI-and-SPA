@@ -1,7 +1,8 @@
-﻿namespace TicTacToe.Data
+﻿namespace TicTacToe.Data.Repositories
 {
     using System.Data.Entity;
     using System.Linq;
+    using Contracts;
 
     public class EfRepository<T> : IRepository<T> where T : class
     {
@@ -26,7 +27,7 @@
             return this.set;
         }
 
-        public T GetById(object id)
+        public T Find(object id)
         {
             return this.set.Find(id);
         }
@@ -48,7 +49,7 @@
 
         public void Delete(object id)
         {
-            this.Delete(this.GetById(id));
+            this.Delete(this.Find(id));
         }
 
         public int SaveChanges()

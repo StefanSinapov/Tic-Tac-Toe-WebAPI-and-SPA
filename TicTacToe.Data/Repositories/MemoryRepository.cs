@@ -1,7 +1,8 @@
-﻿namespace TicTacToe.Data
+﻿namespace TicTacToe.Data.Repositories
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Contracts;
 
     public class MemoryRepository<T> : IRepository<T> where T : class
     {
@@ -23,7 +24,7 @@
             return this.data.Values.AsQueryable();
         }
 
-        public T GetById(object id)
+        public T Find(object id)
         {
             return this.data[id];
         }

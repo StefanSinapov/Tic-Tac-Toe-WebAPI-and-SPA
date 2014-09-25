@@ -4,7 +4,9 @@
     using System.Collections.Generic;
     using System.Data.Entity;
 
-    using TicTacToe.Models;
+    using Contracts;
+    using Repositories;
+    using Models;
 
     public class TicTacToeData : ITicTacToeData
     {

@@ -4,8 +4,8 @@
 
     using Microsoft.AspNet.Identity.EntityFramework;
 
-    using TicTacToe.Data.Migrations;
-    using TicTacToe.Models;
+    using Migrations;
+    using Models;
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
