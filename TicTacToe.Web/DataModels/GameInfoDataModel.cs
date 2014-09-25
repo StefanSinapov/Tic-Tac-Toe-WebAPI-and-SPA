@@ -5,7 +5,7 @@
     using AutoMapper;
 
     using TicTacToe.Models;
-    using TicTacToe.Web.Mapping;
+    using Mapping;
 
     public class GameInfoDataModel : IMappableFrom<Game>, IHaveCustomMappings
     {

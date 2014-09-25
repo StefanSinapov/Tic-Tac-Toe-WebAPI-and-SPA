@@ -224,11 +224,10 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\GameController.cs" />
-    <Compile Include="DataModels\GameResult.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="DataModels\PlayRequestDataModel.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DataModels\GameInfoDataModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -238,7 +237,6 @@
     <Compile Include="Mapping\IMappableFrom.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
@@ -314,6 +312,10 @@
     <ProjectReference Include="..\TicTacToe.Data\TicTacToe.Data.csproj">
       <Project>{64bded4c-9337-433f-ba05-f79ae3309d0a}</Project>
       <Name>TicTacToe.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TicTacToe.GameLogic\TicTacToe.GameLogic.csproj">
+      <Project>{62abca11-87f8-4392-a634-28910d103625}</Project>
+      <Name>TicTacToe.GameLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\TicTacToe.Models\TicTacToe.Models.csproj">
       <Project>{9297f892-4e7c-47ca-908b-41ecc8772486}</Project>

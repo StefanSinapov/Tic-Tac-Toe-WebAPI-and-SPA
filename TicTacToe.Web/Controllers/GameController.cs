@@ -2,41 +2,43 @@
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using System.Data.Entity.Validation;
     using System.Linq;
     using System.Text;
     using System.Web.Http;
-
-    using Antlr.Runtime.Tree;
-
     using AutoMapper.QueryableExtensions;
 
-    using Microsoft.AspNet.Identity;
-
-    using TicTacToe.Data;
+    using Data;
+    using DataModels;
+    using GameLogic;
     using TicTacToe.Models;
-    using TicTacToe.Web.DataModels;
 
     [Authorize]
-    public class GameController : ApiController
+    public class GamesController : BaseApiController
     {
-        private readonly ITicTacToeData data;
+        private readonly IGameResultValidator resultValidator;
 
-        public GameController(ITicTacToeData data)
+        public GamesController(ITicTacToeData data, IGameResultValidator resultValidator)
+            : base(data)
         {
-            this.data = data;
+            this.resultValidator = resultValidator;
+        }
+
+        [HttpGet]
+        public IHttpActionResult Get()
+        {
+            return Ok(this.Data.Games.All().Project().To<GameInfoDataModel>());
         }
 
         [HttpPost]
         public IHttpActionResult Create()
         {
-            var userId = User.Identity.GetUserId();
+            var userId = this.GetUserId();
             var game = new Game { FirstPlayerId = userId };
-            this.data.Games.Add(game);
-            this.data.SaveChanges();
+            this.Data.Games.Add(game);
+            this.Data.SaveChanges();
 
             var gameDataModel =
-                this.data.Games.All()
+                this.Data.Games.All()
                     .Where(x => x.Id == game.Id)
                     .Project()
                     .To<GameInfoDataModel>()
@@ -48,10 +50,10 @@
         [HttpPost]
         public IHttpActionResult Join()
         {
-            var userId = User.Identity.GetUserId();
+            var userId = this.GetUserId();
 
             var firstAvailableGame =
-                this.data.Games.All()
+                this.Data.Games.All()
                     .FirstOrDefault(x => x.State == GameState.WaitingForSecondPlayer && x.FirstPlayerId != userId);
 
             if (firstAvailableGame == null)
@@ -61,10 +63,10 @@
 
             firstAvailableGame.SecondPlayerId = userId;
             firstAvailableGame.State = GameState.TurnX;
-            this.data.SaveChanges();
+            this.Data.SaveChanges();
 
             var gameDataModel =
-                this.data.Games.All()
+                this.Data.Games.All()
                     .Where(x => x.Id == firstAvailableGame.Id)
                     .Project()
                     .To<GameInfoDataModel>()
@@ -74,9 +76,9 @@
         }
 
         [HttpGet]
-        public IHttpActionResult Status([Required]string gameId)
+        public IHttpActionResult Status([Required] string gameId)
         {
-            var userId = User.Identity.GetUserId();
+            var userId = this.GetUserId();
 
             if (!ModelState.IsValid)
             {
@@ -85,7 +87,7 @@
 
             var gameIdAsGuid = new Guid(gameId);
             var gameDataModel =
-                this.data.Games.All()
+                this.Data.Games.All()
                     .Where(x => x.Id == gameIdAsGuid && (x.FirstPlayerId == userId || x.SecondPlayerId == userId))
                     .Project()
                     .To<GameInfoDataModel>()
@@ -100,9 +102,9 @@
         }
 
         [HttpPost]
-        public IHttpActionResult Play([FromUri]PlayRequestDataModel request)
+        public IHttpActionResult Play([FromUri] PlayRequestDataModel request)
         {
-            var userId = User.Identity.GetUserId();
+            var userId = this.GetUserId();
 
             if (!ModelState.IsValid)
             {
@@ -111,7 +113,7 @@
 
             var gameIdAsGuid = new Guid(request.GameId);
             var game =
-                this.data.Games.All()
+                this.Data.Games.All()
                     .FirstOrDefault(
                         x => x.Id == gameIdAsGuid && (x.FirstPlayerId == userId || x.SecondPlayerId == userId));
 
@@ -143,7 +145,7 @@
             game.Board = boardAsString;
             game.State = game.State == GameState.TurnX ? GameState.TurnO : GameState.TurnX;
 
-            var gameResult = this.CheckGameResult(game.Board);
+            var gameResult = this.resultValidator.GetResult(game.Board);
             switch (gameResult)
             {
                 case GameResult.XWins:
@@ -157,38 +159,16 @@
                     break;
             }
 
-            this.data.SaveChanges();
+            this.Data.SaveChanges();
 
             var gameDataModel =
-                this.data.Games.All()
+                this.Data.Games.All()
                     .Where(x => x.Id == gameIdAsGuid && (x.FirstPlayerId == userId || x.SecondPlayerId == userId))
                     .Project()
                     .To<GameInfoDataModel>()
                     .FirstOrDefault();
 
             return this.Ok(gameDataModel);
-        }
-
-        private GameResult CheckGameResult(string boardAsString)
-        {
-            var board = new char[3, 3];
-            for (int i = 0; i < boardAsString.Length; i++)
-            {
-                int row = i / 3;
-                int col = i % 3;
-                board[row, col] = boardAsString[i];
-            }
-
-            //// TODO: Implement Check if the game is won by X or O player
-
-            if (!boardAsString.Contains('-'))
-            {
-                return GameResult.Draw;
-            }
-            else
-            {
-                return GameResult.NotFinished;
-            }
         }
     }
 }

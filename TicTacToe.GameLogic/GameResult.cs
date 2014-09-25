@@ -1,4 +1,4 @@
-namespace TicTacToe.Web.DataModels
+namespace TicTacToe.GameLogic
 {
     public enum GameResult
     {

@@ -5,16 +5,15 @@ using Owin;
 
 namespace TicTacToe.Web
 {
-    using System;
     using System.Reflection;
     using System.Web.Http;
 
     using Ninject;
-    using Ninject.Activation;
     using Ninject.Web.Common.OwinHost;
     using Ninject.Web.WebApi.OwinHost;
 
-    using TicTacToe.Data;
+    using GameLogic;
+    using Data;
 
     public partial class Startup
     {
@@ -37,7 +36,11 @@ namespace TicTacToe.Web
 
         private static void BindTypes(StandardKernel kernel)
         {
-            kernel.Bind<ITicTacToeData>().To<TicTacToeData>().WithConstructorArgument("context", c => new ApplicationDbContext());
+            kernel.Bind<ITicTacToeData>().To<TicTacToeData>()
+                .WithConstructorArgument("context", 
+                        c => new ApplicationDbContext());
+
+            kernel.Bind<IGameResultValidator>().To<GameResultValidator>();
         }
     }
 }
