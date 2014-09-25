@@ -17,5 +17,9 @@
             // Add custom user claims here
             return userIdentity;
         }
+
+        public int Wins { get; set; }
+
+        public int Losses { get; set; }
     }
 }

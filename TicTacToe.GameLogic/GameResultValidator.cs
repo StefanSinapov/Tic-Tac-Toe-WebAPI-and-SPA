@@ -15,8 +15,8 @@
 
             switch (winner)
             {
-                case 'X': return GameResult.XWins;
-                case 'O': return GameResult.OWins;
+                case 'X': return GameResult.WonByX;
+                case 'O': return GameResult.WonByY;
                 default:
                     if (!board.Contains('-'))
                     {

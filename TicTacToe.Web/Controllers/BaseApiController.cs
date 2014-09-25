@@ -13,17 +13,5 @@
         {
             this.Data = data;
         }
-
-        protected string GetUserId()
-        {
-            string userId = this.User.Identity.GetUserId();
-            return userId;
-        }
-
-        protected string GetUsername()
-        {
-            string username = this.User.Identity.GetUserName();
-            return username;
-        }
     }
 }

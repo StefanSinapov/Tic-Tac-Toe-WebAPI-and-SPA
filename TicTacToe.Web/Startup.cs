@@ -7,7 +7,7 @@ namespace TicTacToe.Web
 {
     using System.Reflection;
     using System.Web.Http;
-
+    using Infrastructure;
     using Ninject;
     using Ninject.Web.Common.OwinHost;
     using Ninject.Web.WebApi.OwinHost;
@@ -41,6 +41,8 @@ namespace TicTacToe.Web
                         c => new ApplicationDbContext());
 
             kernel.Bind<IGameResultValidator>().To<GameResultValidator>();
+
+            kernel.Bind<IUserIdProvider>().To<AspNetUserIdProvider>();
         }
     }
 }
