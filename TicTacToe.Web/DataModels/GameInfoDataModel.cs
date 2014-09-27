@@ -22,7 +22,7 @@
         public void CreateMappings(IConfiguration configuration)
         {
             configuration.CreateMap<Game, GameInfoDataModel>()
-                   .ForMember(m => m.FirstPlayerName, opt => opt.MapFrom(game => game.FirstPlayer.UserName))
+                .ForMember(m => m.FirstPlayerName, opt => opt.MapFrom(game => game.FirstPlayer == null ? null : game.FirstPlayer.UserName))
                    .ForMember(m => m.SecondPlayerName, opt => opt.MapFrom(game => game.SecondPlayer == null ? null : game.SecondPlayer.UserName))
                    .ForMember(m => m.State, opt => opt.MapFrom(game => game.State.ToString()));
         }
