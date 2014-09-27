@@ -1,10 +1,10 @@
 ﻿namespace TicTacToe.Web.Controllers
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Text;
     using System.Web.Http;
+    using System.Web.Http.Cors;
     using AutoMapper.QueryableExtensions;
 
     using Data;
@@ -13,14 +13,14 @@
     using Infrastructure;
     using TicTacToe.Models;
 
-    [Authorize]
+    [EnableCors("*", "*", "*")]
     public class GamesController : BaseApiController
     {
         private readonly IGameResultValidator resultValidator;
         private readonly IUserIdProvider userIdProvider;
 
-        public GamesController(ITicTacToeData data, 
-            IGameResultValidator resultValidator, 
+        public GamesController(ITicTacToeData data,
+            IGameResultValidator resultValidator,
             IUserIdProvider userIdProvider)
             : base(data)
         {
@@ -29,85 +29,126 @@
         }
 
         [HttpGet]
-        
+        [Authorize]
         public IHttpActionResult Get()
         {
             return Ok(this.Data.Games.All().Project().To<GameInfoDataModel>());
         }
 
-        [HttpPost]
-        public IHttpActionResult Create()
+        [HttpGet]
+        [Authorize]
+        public IQueryable<ListGameDataModel> MyGames()
         {
             var userId = this.userIdProvider.GetUserId();
-            var game = new Game { FirstPlayerId = userId };
-            this.Data.Games.Add(game);
-            this.Data.SaveChanges();
-
-            var gameDataModel =
-                this.Data.Games.All()
-                    .Where(x => x.Id == game.Id)
-                    .Project()
-                    .To<GameInfoDataModel>()
-                    .FirstOrDefault();
-
-            return this.Ok(gameDataModel);
+            var games = this.Data.Games
+                            .All()
+                            .Where(g => (g.FirstPlayerId == userId ||
+                                         (g.SecondPlayerId == userId && g.State != GameState.TurnO &&
+                                          g.State != GameState.TurnX && g.State != GameState.WaitingForSecondPlayer)))
+                            .Select(ListGameDataModel.FromGame);
+            return games;
         }
-
-        [HttpPost]
-        public IHttpActionResult Join()
+        [HttpGet]
+        [Authorize]
+        public IQueryable<ListGameDataModel> JoinedGames()
         {
             var userId = this.userIdProvider.GetUserId();
-
-            var firstAvailableGame =
-                this.Data.Games.All()
-                    .FirstOrDefault(x => x.State == GameState.WaitingForSecondPlayer && x.FirstPlayerId != userId);
-
-            if (firstAvailableGame == null)
-            {
-                return this.NotFound();
-            }
-
-            firstAvailableGame.SecondPlayerId = userId;
-            firstAvailableGame.State = GameState.TurnX;
-            this.Data.SaveChanges();
-
-            var gameDataModel =
-                this.Data.Games.All()
-                    .Where(x => x.Id == firstAvailableGame.Id)
-                    .Project()
-                    .To<GameInfoDataModel>()
-                    .FirstOrDefault();
-
-            return this.Ok(gameDataModel);
+            var games = this.Data.Games
+                            .All()
+                            .Where(g => g.SecondPlayerId == userId && (g.State == GameState.TurnO || g.State == GameState.TurnX))
+                            .Select(ListGameDataModel.FromGame);
+            return games;
         }
 
         [HttpGet]
-        public IHttpActionResult Status([Required] string gameId)
+        [Authorize]
+        public IQueryable<ListGameDataModel> AvailableGames()
         {
             var userId = this.userIdProvider.GetUserId();
+            var games = this.Data.Games
+                            .All()
+                            .Where(g => g.State == GameState.WaitingForSecondPlayer && g.FirstPlayerId != userId)
+                            .OrderByDescending(g => g.DateCreated)
+                            .Select(ListGameDataModel.FromGame);
+            return games;
+        }
 
-            if (!ModelState.IsValid)
+        [HttpPost]
+        [Authorize]
+        public IHttpActionResult Create(CreateGameDataModel model)
+        {
+            var currentUserId = this.userIdProvider.GetUserId();
+
+            var newGame = new Game
             {
-                return this.BadRequest(this.ModelState);
-            }
+                Name = model.Name,
+                FirstPlayerId = currentUserId,
+                DateCreated = DateTime.Now
+            };
 
-            var gameIdAsGuid = new Guid(gameId);
-            var gameDataModel =
-                this.Data.Games.All()
-                    .Where(x => x.Id == gameIdAsGuid && (x.FirstPlayerId == userId || x.SecondPlayerId == userId))
-                    .Project()
-                    .To<GameInfoDataModel>()
-                    .FirstOrDefault();
+            this.Data.Games.Add(newGame);
+            this.Data.SaveChanges();
 
-            if (gameDataModel == null)
+            return this.Ok(newGame.Id);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IHttpActionResult Join(GameIdDataModel gameModel)
+        {
+            var currentUserId = this.userIdProvider.GetUserId();
+
+            var game = this.Data.Games
+                .All()
+                .FirstOrDefault(g => g.Id.ToString() == gameModel.GameId &&
+                                           g.State == GameState.WaitingForSecondPlayer &&
+                                           g.FirstPlayerId != currentUserId);
+
+            if (game == null)
             {
                 return this.NotFound();
             }
 
-            return this.Ok(gameDataModel);
+            game.SecondPlayerId = currentUserId;
+            game.State = GameState.TurnX;
+            this.Data.SaveChanges();
+
+            return this.Ok();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IHttpActionResult Status(GameIdDataModel gameModel)
+        {
+           var currentUserId = this.userIdProvider.GetUserId();
+            var idAsGuid = new Guid(gameModel.GameId);
+
+            var game = this.Data.Games.All()
+                           .Where(x => x.Id == idAsGuid)
+                           .Select(x => new { x.FirstPlayerId, x.SecondPlayerId })
+                           .FirstOrDefault();
+
+            if (game == null)
+            {
+                return this.NotFound();
+            }
+
+            if (game.FirstPlayerId != currentUserId && game.SecondPlayerId != currentUserId)
+            {
+                return this.BadRequest("This is not your game!");
+            }
+
+            var gameInfo = this.Data.Games.All()
+                               .Where(g => g.Id == idAsGuid)
+                                .Project()
+                                .To<GameInfoDataModel>()
+                               .FirstOrDefault();
+
+            return this.Ok(gameInfo);
         }
 
         [HttpPost]
+        [Authorize]
         public IHttpActionResult Play(PlayRequestDataModel request)
         {
             var userId = this.userIdProvider.GetUserId();
@@ -161,6 +202,23 @@
             game.State = game.State == GameState.TurnX ? GameState.TurnO : GameState.TurnX;
 
             var gameResult = this.resultValidator.GetResult(game.Board);
+
+            ChangeGameState(gameResult, game);
+
+            this.Data.SaveChanges();
+
+            var gameDataModel =
+                this.Data.Games.All()
+                    .Where(x => x.Id == gameIdAsGuid && (x.FirstPlayerId == userId || x.SecondPlayerId == userId))
+                    .Project()
+                    .To<GameInfoDataModel>()
+                    .FirstOrDefault();
+
+            return this.Ok(gameDataModel);
+        }
+
+        private void ChangeGameState(GameResult gameResult, Game game)
+        {
             switch (gameResult)
             {
                 case GameResult.WonByX:
@@ -177,17 +235,6 @@
                     game.State = GameState.GameDraw;
                     break;
             }
-
-            this.Data.SaveChanges();
-
-            var gameDataModel =
-                this.Data.Games.All()
-                    .Where(x => x.Id == gameIdAsGuid && (x.FirstPlayerId == userId || x.SecondPlayerId == userId))
-                    .Project()
-                    .To<GameInfoDataModel>()
-                    .FirstOrDefault();
-
-            return this.Ok(gameDataModel);
         }
     }
 }
