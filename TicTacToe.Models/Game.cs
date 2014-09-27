@@ -13,6 +13,9 @@
             this.State = GameState.WaitingForSecondPlayer;
         }
 
+        [MinLength(3)][MaxLength(50)]
+        public string Name { get; set; }
+
         [Key]
         public Guid Id { get; set; }
 
@@ -28,13 +31,15 @@
         /// <summary>
         /// The 'X' player
         /// </summary>
-        public ApplicationUser FirstPlayer { get; set; }
+        public User FirstPlayer { get; set; }
 
         public string SecondPlayerId { get; set; }
 
         /// <summary>
         /// The 'O' player
         /// </summary>
-        public ApplicationUser SecondPlayer { get; set; }
+        public User SecondPlayer { get; set; }
+
+        public DateTime DateCreated { get; set; }
     }
 }

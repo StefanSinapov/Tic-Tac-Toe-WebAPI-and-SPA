@@ -68,7 +68,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="GameResultValidatorTests.cs" />
-    <Compile Include="PlayActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

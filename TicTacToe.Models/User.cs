@@ -1,5 +1,6 @@
 ﻿namespace TicTacToe.Models
 {
+    using System;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
@@ -7,9 +8,9 @@
     using Microsoft.AspNet.Identity.EntityFramework;
 
     // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
-    public class ApplicationUser : IdentityUser
+    public class User : IdentityUser
     {
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<User> manager, string authenticationType)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
             var userIdentity = await manager.CreateIdentityAsync(this, authenticationType);
@@ -21,5 +22,7 @@
         public int Wins { get; set; }
 
         public int Losses { get; set; }
+
+        public DateTime DateRegistration { get; set; }
     }
 }

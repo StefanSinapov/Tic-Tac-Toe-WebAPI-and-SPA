@@ -1,10 +1,9 @@
 ﻿namespace TicTacToe.Web
 {
     using System.Web.Http;
-
+    using System.Web.Http.Cors;
     using Microsoft.Owin.Security.OAuth;
-
-    using Ninject.Web.WebApi;
+    using Newtonsoft.Json;
 
     public static class WebApiConfig
     {
@@ -17,11 +16,24 @@
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+            config.EnableCors(new EnableCorsAttribute("*", "*", "*"));
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional });
+
+
+            config.Routes.MapHttpRoute(
+                name: "UsersAndScoresApi",
+                routeTemplate: "api/{controller}/",
+                defaults: new
+                {
+                });
+
+
+            config.Formatters.JsonFormatter.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
         }
     }
 }

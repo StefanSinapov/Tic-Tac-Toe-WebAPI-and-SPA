@@ -1,5 +1,6 @@
 ﻿namespace TicTacToe.Web
 {
+    using System;
     using System.Web.Http;
     using System.Web.Mvc;
     using System.Web.Optimization;
@@ -18,6 +19,11 @@
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             AutoMapperConfig.RegisterMappings();
+        }
+
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            this.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         }
     }
 }
