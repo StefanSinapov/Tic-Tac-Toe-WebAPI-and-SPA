@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using System.Web.Http;
+    using System.Web.Http.Cors;
     using AutoMapper.QueryableExtensions;
     using Data;
     using DataModels;

@@ -83,10 +83,6 @@
       <Project>{9297F892-4E7C-47CA-908B-41ECC8772486}</Project>
       <Name>TicTacToe.Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TicTacToe.Web\TicTacToe.Web.csproj">
-      <Project>{51CE55A9-4BAE-42A4-98AC-59BBF7C2943F}</Project>
-      <Name>TicTacToe.Web</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

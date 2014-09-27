@@ -6,7 +6,7 @@
     using System.Web.Optimization;
     using System.Web.Routing;
 
-    using TicTacToe.Web.Mapping;
+    using Mapping;
 
     public class WebApiApplication : System.Web.HttpApplication
     {
@@ -20,10 +20,11 @@
 
             AutoMapperConfig.RegisterMappings();
         }
-
+        
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-            this.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
         }
+
     }
 }

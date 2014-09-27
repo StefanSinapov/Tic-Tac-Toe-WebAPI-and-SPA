@@ -13,7 +13,6 @@
     using Infrastructure;
     using TicTacToe.Models;
 
-    [EnableCors("*", "*", "*")]
     public class GamesController : BaseApiController
     {
         private readonly IGameResultValidator resultValidator;

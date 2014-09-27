@@ -2,9 +2,7 @@
 {
     using System.Web.Http;
     using Data;
-    using Microsoft.AspNet.Identity;
 
-    [Authorize]
     public abstract class BaseApiController : ApiController
     {
         protected ITicTacToeData Data;
