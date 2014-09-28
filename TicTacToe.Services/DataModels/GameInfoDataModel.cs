@@ -1,11 +1,10 @@
-﻿namespace TicTacToe.Web.DataModels
+﻿namespace TicTacToe.Services.DataModels
 {
     using System;
     using System.ComponentModel.DataAnnotations;
     using AutoMapper;
-
-    using TicTacToe.Models;
     using Mapping;
+    using TicTacToe.Models;
 
     public class GameInfoDataModel : IMappableFrom<Game>, IHaveCustomMappings
     {

@@ -1,11 +1,10 @@
-﻿namespace TicTacToe.Web.Controllers
+﻿namespace TicTacToe.Services.Controllers
 {
     using System;
     using System.Linq;
     using System.Text;
     using System.Web.Http;
     using AutoMapper.QueryableExtensions;
-
     using Data;
     using DataModels;
     using GameLogic;
@@ -16,6 +15,14 @@
     {
         private readonly IGameResultValidator resultValidator;
         private readonly IUserIdProvider userIdProvider;
+
+        public GamesController()
+            : this(new TicTacToeData(new ApplicationDbContext()),
+                    new GameResultValidator(),
+                    new AspNetUserIdProvider())
+        {
+
+        }
 
         public GamesController(ITicTacToeData data,
             IGameResultValidator resultValidator,
